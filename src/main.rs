@@ -4,10 +4,11 @@ extern crate obj_exporter;
 
 use image::Rgba;
 use image::ImageBuffer;
-use obj_exporter::{ObjSet, Object, Geometry, Shape, Primitive, Vertex};
 
 mod perlin;
 mod mesh_write;
+
+use mesh_write::Mesh;
 
 fn main()
 {
@@ -33,42 +34,35 @@ fn main()
 	
 	img.save("test.png").unwrap();
 
-	let vertice = vec![(0., 0., 0.),
-						(1., 0., 0.),
-						(0., 1., 0.),
-						(1., 1., 0.),
-						(0., 0., 1.),
-						(1., 0., 1.),
-						(0., 1., 1.),
-						(1., 1., 1.)];
 
-	let shapes = vec![(0,1,2),(1,3,2),
-					  (1,5,3),(5,7,3),
-					  (5,4,7),(4,6,7),
-					  (4,0,6),(0,2,6),
-					  (4,5,0),(5,1,0),
-					  (2,3,6),(3,7,6)];
-	
-	let geometry = vec![Geometry{
-		material_name: None,
-		shapes: shapes.into_iter().map(|(x,y,z)| Shape{
-			primitive: Primitive::Triangle(
-						   (x, Some(x), Some(0)),
-						   (y, Some(y), Some(0)),
-						   (z, Some(z), Some(0)),
-					),
-			groups: vec![],
-			smoothing_groups: vec![]}).collect()}];
+	let mut mesh = Mesh::new();
+	mesh.add_vertex(0., 0., 0.);
+	mesh.add_vertex(1., 0., 0.);
+	mesh.add_vertex(0., 1., 0.);
+	mesh.add_vertex(1., 1., 0.);
+	mesh.add_vertex(0., 0., 1.);
+	mesh.add_vertex(1., 0., 1.);
+	mesh.add_vertex(0., 1., 1.);
+	mesh.add_vertex(1., 1., 1.);
 
-	let objects: Vec<Object> = vec![Object{
-		name: "Cube".to_owned(),
-		vertices: vertice.into_iter().map(|(x, y, z)|Vertex{x, y, z}).collect(),
-		tex_vertices: vec![],
-		normals: vec![],
-		geometry: geometry}];
+	mesh.add_tri(0, 1, 2);
+	mesh.add_tri(1, 3, 2);
 
-	let oset = ObjSet{material_library:None, objects: objects};
+	mesh.add_tri(1, 5, 3);
+	mesh.add_tri(5, 7, 3);
 
-	obj_exporter::export_to_file(&oset, "test_obj.obj").unwrap();
+	mesh.add_tri(5, 4, 7);
+	mesh.add_tri(4, 6, 7);
+
+	mesh.add_tri(4, 0, 6);
+	mesh.add_tri(0, 2, 6);
+
+	mesh.add_tri(4, 5, 0);
+	mesh.add_tri(5, 1, 0);
+
+	mesh.add_tri(2, 3, 6);
+	mesh.add_tri(3, 7, 6);
+
+	mesh.save("test.obj".into());
 }
 
