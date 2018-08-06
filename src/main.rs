@@ -8,13 +8,14 @@ use image::ImageBuffer;
 mod perlin;
 mod mesh_write;
 
-use mesh_write::Mesh;
+use mesh_write::{Mesh, Vert, Triangle, Quad};
 
 fn main()
 {
 	let mut p2d = perlin::Perlin2D::new(490295);
 	p2d.init();
-	let mut img : ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(512, 512);
+	//let mut img : ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(512, 512);
+	/*
 	for x in 0..512
 	{
 		let p = p2d.perl3d(x as f64 / 128., 0.3289424, 0.9428985);
@@ -31,38 +32,22 @@ fn main()
 			}
 		}
 	}
+	*/
 	
-	img.save("test.png").unwrap();
-
+	//img.save("test.png").unwrap();
 
 	let mut mesh = Mesh::new();
-	mesh.add_vertex(0., 0., 0.);
-	mesh.add_vertex(1., 0., 0.);
-	mesh.add_vertex(0., 1., 0.);
-	mesh.add_vertex(1., 1., 0.);
-	mesh.add_vertex(0., 0., 1.);
-	mesh.add_vertex(1., 0., 1.);
-	mesh.add_vertex(0., 1., 1.);
-	mesh.add_vertex(1., 1., 1.);
-
-	mesh.add_tri(0, 1, 2);
-	mesh.add_tri(1, 3, 2);
-
-	mesh.add_tri(1, 5, 3);
-	mesh.add_tri(5, 7, 3);
-
-	mesh.add_tri(5, 4, 7);
-	mesh.add_tri(4, 6, 7);
-
-	mesh.add_tri(4, 0, 6);
-	mesh.add_tri(0, 2, 6);
-
-	mesh.add_tri(4, 5, 0);
-	mesh.add_tri(5, 1, 0);
-
-	mesh.add_tri(2, 3, 6);
-	mesh.add_tri(3, 7, 6);
-
+	for x in 0..32
+	{
+		for y in 0..32
+		{
+			let b = (p2d.perl3d(x as f64 / 16., y as f64 / 16., 53.45) * 32.) as usize;
+			for z in 0..b
+			{
+				mesh.add_naive_cube(Vert{x:x as f64, y:y as f64, z: z as f64});
+			}
+		}
+	}
 	mesh.save("test.obj".into());
 }
 
